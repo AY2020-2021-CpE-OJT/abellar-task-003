@@ -21,6 +21,13 @@ class _InputFormState extends State<InputForm> {
   final lastNameCtrlr = TextEditingController();
   final firstNameCtrlr = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  int nOfPhoneNumber = 1;
+
+  void addPhoneNumber() {
+    setState(() {
+      nOfPhoneNumber++;
+    });
+  }
 
   @override
   void dispose() {
@@ -41,7 +48,7 @@ class _InputFormState extends State<InputForm> {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 40.0, right: 10.0),
+                  padding: const EdgeInsets.only(right: 10.0),
                   child: Icon(Icons.account_circle_rounded, size: 100.0),
                 ),
                 Expanded(
@@ -61,29 +68,30 @@ class _InputFormState extends State<InputForm> {
                         ),
                         controller: firstNameCtrlr,
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                // Retrieve the text the that user has entered by using the
-                                // TextEditingController.
-                                content:
-                                    Text('Last Name: ${lastNameCtrlr.text}'),
-                              );
-                            },
-                          );
-                        },
-                        child: Text('Submit'),
-                      )
                     ],
                   ),
                 ),
               ],
             ),
+            Container(
+              height: 300.0,
+              child: ListView.builder(
+                itemCount: nOfPhoneNumber,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: TextFormField(
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(), labelText: 'Number'),
+                    ),
+                  );
+                },
+              ),
+            )
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: addPhoneNumber,
       ),
     );
   }
