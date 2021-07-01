@@ -18,11 +18,13 @@ class InputForm extends StatefulWidget {
 }
 
 class _InputFormState extends State<InputForm> {
-  final phonebookController = TextEditingController();
+  final lastNameCtrlr = TextEditingController();
+  final firstNameCtrlr = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    phonebookController.dispose();
+    lastNameCtrlr.dispose();
     super.dispose();
   }
 
@@ -35,27 +37,49 @@ class _InputFormState extends State<InputForm> {
       body: Container(
         padding: const EdgeInsets.all(10.0),
         child: Column(
-
           children: [
             Row(
               children: [
-                Text('Last Name:'),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 40.0, right: 10.0),
+                  child: Icon(Icons.account_circle_rounded, size: 100.0),
+                ),
                 Expanded(
-                    child: TextField(
-                  decoration: InputDecoration(
-                    border: UnderlineInputBorder(),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        decoration: InputDecoration(
+                          border: UnderlineInputBorder(),
+                          labelText: 'Last Name',
+                        ),
+                        controller: lastNameCtrlr,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          border: UnderlineInputBorder(),
+                          labelText: 'First Name',
+                        ),
+                        controller: firstNameCtrlr,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                // Retrieve the text the that user has entered by using the
+                                // TextEditingController.
+                                content:
+                                    Text('Last Name: ${lastNameCtrlr.text}'),
+                              );
+                            },
+                          );
+                        },
+                        child: Text('Submit'),
+                      )
+                    ],
                   ),
-                )),
-              ],
-            ),Row(
-              children: [
-                Text('First Name:'),
-                Expanded(
-                    child: TextField(
-                  decoration: InputDecoration(
-                    border: UnderlineInputBorder(),
-                  ),
-                )),
+                ),
               ],
             ),
           ],
