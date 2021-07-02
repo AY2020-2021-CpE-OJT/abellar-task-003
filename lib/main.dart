@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PhonebookTodo {
-  final String lastName;
-  final String firstName;
+  final List<String> lastName;
+  final List<String> firstName;
   final List<int> phoneNumbers = [09954564469, 09945489033];
 
   PhonebookTodo(this.lastName, this.firstName);
@@ -29,7 +29,10 @@ class _InputFormState extends State<InputForm> {
   final lastNameCtrlr = TextEditingController();
   final firstNameCtrlr = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
   int nOfPhoneNumber = 1;
+
+  final List<String> names = <String>['Levi', 'eyy'];
 
   void addPhoneNumber() {
     setState(() {
@@ -129,26 +132,25 @@ class _InputFormState extends State<InputForm> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          names.insert(0, 'Dummy');
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ShowContactData(todo: PhonebookTodo(lastNameCtrlr.text, firstNameCtrlr.text))));
+            context,
+            MaterialPageRoute(
+              builder: (context) => ShowContactScreen(
+                todo: PhonebookTodo(names, names),
+              ),
+            ),
+          );
         },
       ),
     );
   }
 }
 
-class ShowContactData extends StatelessWidget {
+class ShowContactScreen extends StatelessWidget {
   final PhonebookTodo todo;
-  List createList() {
-    var contacts = [[todo.firstName, todo.lastName]];
-    contacts.add([todo.lastName, todo.firstName]);
-    return contacts;
-  }
 
-  const ShowContactData({Key? key, required this.todo}) : super(key: key);
+  const ShowContactScreen({Key? key, required this.todo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +160,7 @@ class ShowContactData extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('${createList()}'),
+        child: Text('${todo.lastName}'),
       ),
     );
   }
