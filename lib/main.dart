@@ -32,7 +32,8 @@ class _InputFormState extends State<InputForm> {
 
   int nOfPhoneNumber = 1;
 
-  final List<String> names = <String>['Levi', 'eyy'];
+  final List<String> fnames = <String>[];
+  final List<String> lnames = <String>[];
 
   void addPhoneNumber() {
     setState(() {
@@ -132,12 +133,14 @@ class _InputFormState extends State<InputForm> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          names.insert(0, 'Dummy');
+          lnames.insert(0, lastNameCtrlr.text);
+          fnames.insert(0, firstNameCtrlr.text);
+
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ShowContactScreen(
-                todo: PhonebookTodo(names, names),
+                todo: PhonebookTodo(lnames, fnames),
               ),
             ),
           );
@@ -160,7 +163,21 @@ class ShowContactScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('${todo.lastName}'),
+        child: Column(
+          children: [
+            Flexible(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title:
+                        Text('${todo.firstName[index]} ${todo.lastName[index]}'),
+                  );
+                },
+                itemCount: todo.firstName.length,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
