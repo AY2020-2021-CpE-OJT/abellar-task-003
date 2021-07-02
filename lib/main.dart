@@ -29,6 +29,12 @@ class _InputFormState extends State<InputForm> {
     });
   }
 
+  void minusPhoneNumber() {
+    setState(() {
+      nOfPhoneNumber--;
+    });
+  }
+
   @override
   void dispose() {
     lastNameCtrlr.dispose();
@@ -73,18 +79,41 @@ class _InputFormState extends State<InputForm> {
                 ),
               ],
             ),
-            Container(
-              height: 300.0,
+            Flexible(
               child: ListView.builder(
                 itemCount: nOfPhoneNumber,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: TextFormField(
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(), labelText: 'Number'),
+                    title: Row(
+                      children: [
+                        Expanded(
+                            child: TextFormField(
+                          decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Number'),
+                        )),
+                        ConstrainedBox(
+                          constraints: BoxConstraints.tightFor(
+                              width: 25.0, height: 25.0),
+                          child: ElevatedButton(
+                            onPressed: minusPhoneNumber,
+                            child: Text('x'),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.all(1.0),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
+              ),
+            ),
+            OutlinedButton(
+              onPressed: addPhoneNumber,
+              child: Text('+', style: TextStyle(fontSize: 20.0)),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.blue),
               ),
             )
           ],
@@ -94,5 +123,17 @@ class _InputFormState extends State<InputForm> {
         onPressed: addPhoneNumber,
       ),
     );
+  }
+}
+
+class showContactData extends StatefulWidget {
+  @override
+  _showContactDataState createState() => _showContactDataState();
+}
+
+class _showContactDataState extends State<showContactData> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
