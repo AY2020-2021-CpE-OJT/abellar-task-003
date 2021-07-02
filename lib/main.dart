@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 
+class PhonebookTodo {
+  final String lastName;
+  final String firstName;
+  final List<int> phoneNumbers = [09954564469, 09945489033];
+
+  PhonebookTodo(this.lastName, this.firstName);
+}
+
 void main() => runApp(PhoneBookApp());
 
 class PhoneBookApp extends StatelessWidget {
@@ -86,7 +94,7 @@ class _InputFormState extends State<InputForm> {
                   return ListTile(
                     title: Row(
                       children: [
-                        Expanded(
+                        Flexible(
                             child: TextFormField(
                           decoration: InputDecoration(
                               border: UnderlineInputBorder(),
@@ -120,20 +128,38 @@ class _InputFormState extends State<InputForm> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addPhoneNumber,
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ShowContactData(todo: PhonebookTodo(lastNameCtrlr.text, firstNameCtrlr.text))));
+        },
       ),
     );
   }
 }
 
-class showContactData extends StatefulWidget {
-  @override
-  _showContactDataState createState() => _showContactDataState();
-}
+class ShowContactData extends StatelessWidget {
+  final PhonebookTodo todo;
+  List createList() {
+    var contacts = [[todo.firstName, todo.lastName]];
+    contacts.add([todo.lastName, todo.firstName]);
+    return contacts;
+  }
 
-class _showContactDataState extends State<showContactData> {
+  const ShowContactData({Key? key, required this.todo}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Contacts'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('${createList()}'),
+      ),
+    );
   }
 }
