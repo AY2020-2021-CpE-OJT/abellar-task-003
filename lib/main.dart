@@ -1,252 +1,194 @@
-import 'dart:async';
-import 'dart:io';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/painting.dart';
 
-class PhonebookTodo {
-  final List<String> lastName;
-  final List<String> firstName;
+void main() => runApp(pbApp());
 
-  //final List<List> phoneNumbers;
+class Todo {
+  final String last_name;
+  final String first_name;
+  final List<String> phone_numbers;
 
-  PhonebookTodo(this.lastName, this.firstName);
+  Todo(this.last_name, this.first_name, this.phone_numbers);
 }
 
-void main() => runApp(PhoneBookApp());
+class pbApp extends StatelessWidget {
+  const pbApp({Key? key}) : super(key: key);
 
-class ContactStorage {
-  Future<String> get _localPath async {
-    final dir = await getApplicationDocumentsDirectory();
-
-    return dir.path;
-  }
-
-  Future<File> get _contactFile async {
-    final path = await _localPath;
-    return File('$path/contact.txt');
-  }
-
-  Future<File> writeContact(PhonebookTodo contact) async {
-    final file = await _contactFile;
-
-    // Write the file
-    return file.writeAsString('$contact');
-  }
-
-  Future<String> readContact() async {
-    try {
-      final file = await _contactFile;
-
-      // Read the file
-      final contents = await file.readAsString();
-
-      return contents;
-    } catch (e) {
-      // If encountering an error, return 0
-      return 'error';
-    }
-  }
-}
-
-class PhoneBookApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Phonebook',
-      home: InputForm(
-        storage: ContactStorage(),
-      ),
+      title: 'Phonebook App',
+      home: FirstScreen(),
     );
   }
 }
 
-class InputForm extends StatefulWidget {
-  final ContactStorage storage;
-
-  InputForm({Key? key, required this.storage}) : super(key: key);
-
-  @override
-  _InputFormState createState() => _InputFormState();
-}
-
-class _InputFormState extends State<InputForm> {
-  final lastNameCtrlr = TextEditingController();
-  final firstNameCtrlr = TextEditingController();
-  final List conNumsCtrlr = [];
-  final _formKey = GlobalKey<FormState>();
-
-  int nOfPhoneNumber = 1;
-  String sample = 'to changed';
-
-  final List<String> fnames = <String>[];
-  final List<String> lnames = <String>[];
-
-  void addPhoneNumber() {
-    setState(() {
-      nOfPhoneNumber++;
-    });
-  }
-
-  void minusPhoneNumber() {
-    setState(() {
-      nOfPhoneNumber--;
-    });
-  }
-
-  @override
-  void dispose() {
-    lastNameCtrlr.dispose();
-    super.dispose();
-  }
-
+class FirstScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Contact'),
+        title: Text('Add Contacts'),
       ),
-      body: Container(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: Icon(Icons.account_circle_rounded, size: 100.0),
+      body: InputContactForm(),
+    );
+  }
+}
+
+class InputContactForm extends StatefulWidget {
+  const InputContactForm({Key? key}) : super(key: key);
+
+  @override
+  _InputContactFormState createState() => _InputContactFormState();
+}
+
+class _InputContactFormState extends State<InputContactForm> {
+  List<Todo> names_todo = <Todo>[];
+
+  int nPhoneNumber = 1;
+
+  void saveContact() {
+    List<String> pnums = <String>[];
+    for(int i = 0; i < nPhoneNumber; i++) {
+      pnums.add(pnumCtrlrs[i].text);
+    }
+    setState(() {
+      names_todo.insert(
+          0, Todo(lnameCtrlr.text, fnameCtrlr.text, pnums));
+    });
+
+  }
+
+  void gotoNextScreen() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SecondScreeen(todo: names_todo)));
+  }
+
+  void addPhoneNumber() {
+    setState(() {
+      nPhoneNumber++;
+      pnumCtrlrs.insert(0, TextEditingController());
+    });
+  }
+
+  void subPhoneNumber() {
+    setState(() {
+      if (nPhoneNumber != 0) {
+        nPhoneNumber--;
+        pnumCtrlrs.removeAt(0);
+      }
+
+    });
+  }
+
+  final lnameCtrlr = TextEditingController();
+  final fnameCtrlr = TextEditingController();
+
+  //final pnumCtrlr = TextEditingController();
+  List<TextEditingController> pnumCtrlrs = <TextEditingController>[
+    TextEditingController()
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(20.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.account_circle_rounded, size: 100.0,),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(), labelText: 'First Name'),
+                      controller: fnameCtrlr,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(), labelText: 'Last Name'),
+                      controller: lnameCtrlr,
+                    ),
+                  ],
                 ),
+              ),
+            ],
+          ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: 0.0),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (context, i) {
+                  return ListTile(
+                    title: TextFormField(
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(),
+                          labelText: 'Phone Number #${i + 1}'),
+                      controller: pnumCtrlrs[i],
+                    ),
+                  );
+                },
+                itemCount: nPhoneNumber,
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton(onPressed: addPhoneNumber, child: Icon(Icons.add)),
+              OutlinedButton(
+                  onPressed: subPhoneNumber,
+                  child: Text(
+                    '-',
+                    style: TextStyle(fontSize: 25),
+                  )),
+            ],
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
                 Expanded(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        decoration: InputDecoration(
-                          border: UnderlineInputBorder(),
-                          labelText: 'Last Name',
-                        ),
-                        controller: lastNameCtrlr,
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          border: UnderlineInputBorder(),
-                          labelText: 'First Name',
-                        ),
-                        controller: firstNameCtrlr,
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ElevatedButton(
+                      onPressed: saveContact,
+                      child: Text('Submit'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0),
+                  child: ElevatedButton(
+                    onPressed: gotoNextScreen,
+                    child: Text('Show'),
                   ),
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2.5),
-                    child: OutlinedButton(
-                      onPressed: addPhoneNumber,
-                      child: Text('+', style: TextStyle(fontSize: 20.0)),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.blue),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2.5, right: 5),
-                    child: OutlinedButton(
-                      onPressed: addPhoneNumber,
-                      child: Text('-', style: TextStyle(fontSize: 20.0)),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.blue),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ElevatedButton(
-                      child: Text('Contacts'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ShowContactScreen(
-                              todo: PhonebookTodo(lnames, fnames),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2.5),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        widget.storage.writeContact(PhonebookTodo(lnames, fnames));
-                      },
-                      child: Text('Save'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: ListView.builder(
-                itemCount: nOfPhoneNumber,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Row(
-                      children: [
-                        Flexible(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Number'),
-                          ),
-                        ),
-                        ConstrainedBox(
-                          constraints: BoxConstraints.tightFor(
-                              width: 25.0, height: 25.0),
-                          child: ElevatedButton(
-                            onPressed: minusPhoneNumber,
-                            child: Text('x'),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.all(1.0),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          lnames.insert(0, lastNameCtrlr.text);
-          fnames.insert(0, firstNameCtrlr.text);
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ShowContactScreen(
-                todo: PhonebookTodo(lnames, fnames),
-              ),
-            ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 }
 
-class ShowContactScreen extends StatelessWidget {
-  final PhonebookTodo todo;
+class SecondScreeen extends StatelessWidget {
+  final List<Todo> todo;
 
-  const ShowContactScreen({Key? key, required this.todo}) : super(key: key);
+  const SecondScreeen({Key? key, required this.todo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -255,21 +197,14 @@ class ShowContactScreen extends StatelessWidget {
         title: Text('Contacts'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Flexible(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                        '${todo.firstName[index]} ${todo.lastName[index]}'),
-                  );
-                },
-                itemCount: todo.firstName.length,
-              ),
-            ),
-          ],
+        padding: EdgeInsets.all(20.0),
+        child: ListView.builder(
+          itemCount: todo.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text('${todo[index].first_name} ${todo[index].last_name} ${todo[index].phone_numbers}'),
+            );
+          },
         ),
       ),
     );
