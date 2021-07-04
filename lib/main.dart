@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(pbApp());
 
@@ -28,6 +30,7 @@ class FirstScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Add Contacts'),
       ),
@@ -50,14 +53,13 @@ class _InputContactFormState extends State<InputContactForm> {
 
   void saveContact() {
     List<String> pnums = <String>[];
-    for(int i = 0; i < nPhoneNumber; i++) {
+    for (int i = 0; i < nPhoneNumber; i++) {
       pnums.add(pnumCtrlrs[i].text);
     }
     setState(() {
       names_todo.insert(
           0, Todo(lnameCtrlr.text, fnameCtrlr.text, pnums));
     });
-
   }
 
   void gotoNextScreen() {
@@ -80,7 +82,6 @@ class _InputContactFormState extends State<InputContactForm> {
         nPhoneNumber--;
         pnumCtrlrs.removeAt(0);
       }
-
     });
   }
 
@@ -110,12 +111,14 @@ class _InputContactFormState extends State<InputContactForm> {
                   children: [
                     TextFormField(
                       decoration: InputDecoration(
-                          border: UnderlineInputBorder(), labelText: 'First Name'),
+                          border: UnderlineInputBorder(),
+                          labelText: 'First Name'),
                       controller: fnameCtrlr,
                     ),
                     TextFormField(
                       decoration: InputDecoration(
-                          border: UnderlineInputBorder(), labelText: 'Last Name'),
+                          border: UnderlineInputBorder(),
+                          labelText: 'Last Name'),
                       controller: lnameCtrlr,
                     ),
                   ],
@@ -124,7 +127,7 @@ class _InputContactFormState extends State<InputContactForm> {
             ],
           ),
           Flexible(
-            fit: FlexFit.loose,
+            flex: 0,
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: 0.0),
               child: ListView.builder(
@@ -155,28 +158,34 @@ class _InputContactFormState extends State<InputContactForm> {
                   )),
             ],
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: ElevatedButton(
-                      onPressed: saveContact,
-                      child: Text('Submit'),
+          Flexible(
+            fit: FlexFit.loose,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                      child: ElevatedButton(
+                        onPressed: saveContact,
+                        child: Text('Submit'),
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 2.0),
-                  child: ElevatedButton(
-                    onPressed: gotoNextScreen,
-                    child: Text('Show'),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 2.0),
+                      child: ElevatedButton(
+                        onPressed: gotoNextScreen,
+                        style: ElevatedButton.styleFrom(primary: Colors.grey),
+                        child: Text('View'),
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -198,15 +207,85 @@ class SecondScreeen extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
-        child: ListView.builder(
-          itemCount: todo.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text('${todo[index].first_name} ${todo[index].last_name} ${todo[index].phone_numbers}'),
-            );
-          },
+        child: Column(
+          children: [
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: todo.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text('${todo[index].first_name} ${todo[index]
+                        .last_name} ${todo[index].phone_numbers}'),
+                  );
+                },
+              ),
+            ),
+            ContactsFromDatabase(),
+          ],
         ),
       ),
     );
   }
 }
+
+
+
+Future<Contacts> fetchContacts() async {
+  final res = await http.get(Uri.parse('http://192.168.254.106:5000/contacts'));
+
+  if (res.statusCode == 200) return Contacts.fromJson(jsonDecode(res.body));
+  else throw Exception('Failed to load album');
+
+}
+
+class Contacts {
+  final String last_name;
+  final String first_name;
+  //final List<String> phone_numbers;
+
+  Contacts({
+    required this.last_name,
+    required this.first_name,
+    //required this.phone_numbers,
+  });
+
+  factory Contacts.fromJson(Map<String, dynamic> json) {
+    return Contacts(
+      last_name: json['last_name'],
+      first_name: json['first_name'],
+      //phone_numbers: json['phone_numbers'],
+    );
+  }
+}
+
+
+class ContactsFromDatabase extends StatefulWidget {
+  const ContactsFromDatabase({Key? key}) : super(key: key);
+
+  @override
+  _ContactsFromDatabaseState createState() => _ContactsFromDatabaseState();
+}
+
+class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
+  late Future<Contacts> futureContacts;
+
+  @override
+  void initState() {
+    super.initState();
+    futureContacts = fetchContacts();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FutureBuilder<Contacts>(builder: (context, snapshot) {
+        if (snapshot.hasData) return Text(snapshot.data!.first_name);
+        else if (snapshot.hasError) return Text("${snapshot.error}");
+        return CircularProgressIndicator();
+      },
+        future: futureContacts,),
+    );
+  }
+}
+
