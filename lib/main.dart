@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-void main() => runApp(pbApp());
+void main() => runApp(const PbApp());
 
 class Todo {
   final String last_name;
@@ -14,8 +14,8 @@ class Todo {
   Todo(this.last_name, this.first_name, this.phone_numbers);
 }
 
-class pbApp extends StatelessWidget {
-  const pbApp({Key? key}) : super(key: key);
+class PbApp extends StatelessWidget {
+  const PbApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +57,7 @@ class _InputContactFormState extends State<InputContactForm> {
       pnums.add(pnumCtrlrs[i].text);
     }
     setState(() {
-      names_todo.insert(
-          0, Todo(lnameCtrlr.text, fnameCtrlr.text, pnums));
+      names_todo.insert(0, Todo(lnameCtrlr.text, fnameCtrlr.text, pnums));
     });
   }
 
@@ -104,7 +103,10 @@ class _InputContactFormState extends State<InputContactForm> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.account_circle_rounded, size: 100.0,),
+                child: Icon(
+                  Icons.account_circle_rounded,
+                  size: 100.0,
+                ),
               ),
               Expanded(
                 child: Column(
@@ -215,8 +217,8 @@ class SecondScreeen extends StatelessWidget {
                 itemCount: todo.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text('${todo[index].first_name} ${todo[index]
-                        .last_name} ${todo[index].phone_numbers}'),
+                    title: Text(
+                        '${todo[index].first_name} ${todo[index].last_name} ${todo[index].phone_numbers}'),
                   );
                 },
               ),
@@ -229,19 +231,19 @@ class SecondScreeen extends StatelessWidget {
   }
 }
 
-
-
 Future<Contacts> fetchContacts() async {
   final res = await http.get(Uri.parse('http://192.168.254.106:5000/contacts'));
 
-  if (res.statusCode == 200) return Contacts.fromJson(jsonDecode(res.body));
-  else throw Exception('Failed to load album');
-
+  if (res.statusCode == 200)
+    return Contacts.fromJson(jsonDecode(res.body)[0]);
+  else
+    throw Exception('Failed to load contacts');
 }
 
 class Contacts {
   final String last_name;
   final String first_name;
+
   //final List<String> phone_numbers;
 
   Contacts({
@@ -258,7 +260,6 @@ class Contacts {
     );
   }
 }
-
 
 class ContactsFromDatabase extends StatefulWidget {
   const ContactsFromDatabase({Key? key}) : super(key: key);
@@ -279,13 +280,15 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FutureBuilder<Contacts>(builder: (context, snapshot) {
-        if (snapshot.hasData) return Text(snapshot.data!.first_name);
-        else if (snapshot.hasError) return Text("${snapshot.error}");
-        return CircularProgressIndicator();
-      },
-        future: futureContacts,),
+      child: FutureBuilder<Contacts>(
+        builder: (context, snapshot) {
+          if (snapshot.hasData)
+            return Text(snapshot.data!.first_name);
+          else if (snapshot.hasError) return Text("${snapshot.error}");
+          return CircularProgressIndicator();
+        },
+        future: futureContacts,
+      ),
     );
   }
 }
-
