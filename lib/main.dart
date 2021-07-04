@@ -233,7 +233,8 @@ class SecondScreeen extends StatelessWidget {
   }
 }
 
-Future<Contacts> createContacts(String last_name, String first_name, List<dynamic> phone_numbers) async {
+Future<Contacts> createContacts(
+    String last_name, String first_name, List<dynamic> phone_numbers) async {
   final res = await http.post(Uri.parse('http://192.168.254.106:5000/contacts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -258,12 +259,6 @@ Future<Contacts> fetchContacts(int index) async {
     return Contacts.fromJson(jsonDecode(res.body)[index]);
   } else
     throw Exception('Failed to load contacts');
-}
-
-Future<String> fetchNumOfContacts() async {
-  final res =
-  await http.get(Uri.parse('http://192.168.254.106:5000/contacts/total'));
-  return res.body;
 }
 
 class Contacts {
@@ -295,23 +290,32 @@ class ContactsFromDatabase extends StatefulWidget {
 
 class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   List<Future<Contacts>> futureContacts = <Future<Contacts>>[];
-  late int futureNumOfContacts = 2;
+  late int futureNumOfContacts = 0;
   late var samstring = '';
-
-  Future<void> setFutureNumCon() async {
-    samstring = await fetchNumOfContacts();
-  }
 
   @override
   void initState() {
     super.initState();
-    setFutureNumCon();
-    print(samstring);
-    for (int i = 0; i < futureNumOfContacts; i++) {
-      futureContacts.insert(i, fetchContacts(i));
-    }
+    fetchNumOfContacts().then((value) {
+      setState(() {
+        futureNumOfContacts = int.parse(value);
+        for (int i = 0; i < futureNumOfContacts; i++) {
+          futureContacts.insert(i, fetchContacts(i));
+        }
+      });
+    });
     //print(futureNumOfContacts);
     //futureContacts = fetchContacts(0);
+  }
+
+  var infos;
+
+  fetchNumOfContacts() async {
+    final req =
+    await http.get(Uri.parse('http://192.168.254.106:5000/contacts/total'));
+    infos = req.body;
+    //print(infos);
+    return infos;
   }
 
   @override
@@ -322,6 +326,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
           return FutureBuilder<Contacts>(
             builder: (context, snapshot) {
               //initState();
+              //print(infos);
               if (snapshot.hasData)
                 return Text(snapshot.data!.phone_numbers.toString());
               else if (snapshot.hasError) return Text("${snapshot.error}");
