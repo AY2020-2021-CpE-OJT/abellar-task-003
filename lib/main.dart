@@ -48,6 +48,7 @@ class InputContactForm extends StatefulWidget {
 
 class _InputContactFormState extends State<InputContactForm> {
   List<Todo> names_todo = <Todo>[];
+  Future<Contacts>? _futureContacts;
 
   int nPhoneNumber = 1;
 
@@ -58,6 +59,7 @@ class _InputContactFormState extends State<InputContactForm> {
     }
     setState(() {
       names_todo.insert(0, Todo(lnameCtrlr.text, fnameCtrlr.text, pnums));
+      _futureContacts = createContacts(lnameCtrlr.text, fnameCtrlr.text, pnums);
     });
   }
 
@@ -223,7 +225,7 @@ class SecondScreeen extends StatelessWidget {
                 },
               ),
             ),
-            ContactsFromDatabase(),
+            Flexible(child: ContactsFromDatabase()),
           ],
         ),
       ),
@@ -231,32 +233,55 @@ class SecondScreeen extends StatelessWidget {
   }
 }
 
-Future<Contacts> fetchContacts() async {
+Future<Contacts> createContacts(String last_name, String first_name, List<dynamic> phone_numbers) async {
+  final res = await http.post(Uri.parse('http://192.168.254.106:5000/contacts'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<dynamic, dynamic>{
+        'last_name': last_name,
+        'first_name': first_name,
+        'phone_numbers': phone_numbers
+      }));
+
+  if (res.statusCode == 201) {
+    return Contacts.fromJson(jsonDecode(res.body));
+  } else {
+    throw Exception('Failed to create contact');
+  }
+}
+
+Future<Contacts> fetchContacts(int index) async {
   final res = await http.get(Uri.parse('http://192.168.254.106:5000/contacts'));
 
-  if (res.statusCode == 200)
-    return Contacts.fromJson(jsonDecode(res.body)[0]);
-  else
+  if (res.statusCode == 200) {
+    return Contacts.fromJson(jsonDecode(res.body)[index]);
+  } else
     throw Exception('Failed to load contacts');
+}
+
+Future<String> fetchNumOfContacts() async {
+  final res =
+  await http.get(Uri.parse('http://192.168.254.106:5000/contacts/total'));
+  return res.body;
 }
 
 class Contacts {
   final String last_name;
   final String first_name;
-
-  //final List<String> phone_numbers;
+  final List<dynamic> phone_numbers;
 
   Contacts({
     required this.last_name,
     required this.first_name,
-    //required this.phone_numbers,
+    required this.phone_numbers,
   });
 
   factory Contacts.fromJson(Map<String, dynamic> json) {
     return Contacts(
       last_name: json['last_name'],
       first_name: json['first_name'],
-      //phone_numbers: json['phone_numbers'],
+      phone_numbers: json['phone_numbers'],
     );
   }
 }
@@ -269,26 +294,41 @@ class ContactsFromDatabase extends StatefulWidget {
 }
 
 class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
-  late Future<Contacts> futureContacts;
+  List<Future<Contacts>> futureContacts = <Future<Contacts>>[];
+  late int futureNumOfContacts = 2;
+  late var samstring = '';
+
+  Future<void> setFutureNumCon() async {
+    samstring = await fetchNumOfContacts();
+  }
 
   @override
   void initState() {
     super.initState();
-    futureContacts = fetchContacts();
+    setFutureNumCon();
+    print(samstring);
+    for (int i = 0; i < futureNumOfContacts; i++) {
+      futureContacts.insert(i, fetchContacts(i));
+    }
+    //print(futureNumOfContacts);
+    //futureContacts = fetchContacts(0);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FutureBuilder<Contacts>(
-        builder: (context, snapshot) {
-          if (snapshot.hasData)
-            return Text(snapshot.data!.first_name);
-          else if (snapshot.hasError) return Text("${snapshot.error}");
-          return CircularProgressIndicator();
-        },
-        future: futureContacts,
-      ),
-    );
+    return ListView.builder(
+        itemCount: futureNumOfContacts,
+        itemBuilder: (context, index) {
+          return FutureBuilder<Contacts>(
+            builder: (context, snapshot) {
+              //initState();
+              if (snapshot.hasData)
+                return Text(snapshot.data!.phone_numbers.toString());
+              else if (snapshot.hasError) return Text("${snapshot.error}");
+              return CircularProgressIndicator();
+            },
+            future: futureContacts[index],
+          );
+        });
   }
 }
