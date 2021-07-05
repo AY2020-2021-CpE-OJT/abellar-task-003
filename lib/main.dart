@@ -61,6 +61,12 @@ class _InputContactFormState extends State<InputContactForm> {
       names_todo.insert(0, Todo(lnameCtrlr.text, fnameCtrlr.text, pnums));
       _futureContacts = createContacts(lnameCtrlr.text, fnameCtrlr.text, pnums);
     });
+
+    final snackBar = SnackBar(
+      content: Text('Successfully Submitted Contacts'),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void gotoNextScreen() {
@@ -220,7 +226,8 @@ class SecondScreeen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(
-                        '${todo[index].first_name} ${todo[index].last_name} ${todo[index].phone_numbers}'),
+                        '${todo[index].first_name} ${todo[index].last_name}'),
+                    subtitle: Text('${todo[index].phone_numbers}'),
                   );
                 },
               ),
@@ -235,7 +242,7 @@ class SecondScreeen extends StatelessWidget {
 
 Future<Contacts> createContacts(
     String last_name, String first_name, List<dynamic> phone_numbers) async {
-  final res = await http.post(Uri.parse('http://192.168.254.106:5000/contacts'),
+  final res = await http.post(Uri.parse('http://192.168.254.100:5000/contacts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -253,7 +260,7 @@ Future<Contacts> createContacts(
 }
 
 Future<Contacts> fetchContacts(int index) async {
-  final res = await http.get(Uri.parse('http://192.168.254.106:5000/contacts'));
+  final res = await http.get(Uri.parse('http://192.168.254.100:5000/contacts'));
 
   if (res.statusCode == 200) {
     return Contacts.fromJson(jsonDecode(res.body)[index]);
@@ -312,7 +319,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
 
   fetchNumOfContacts() async {
     final req =
-    await http.get(Uri.parse('http://192.168.254.106:5000/contacts/total'));
+    await http.get(Uri.parse('http://192.168.254.100:5000/contacts/total'));
     infos = req.body;
     //print(infos);
     return infos;
@@ -323,16 +330,30 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
     return ListView.builder(
         itemCount: futureNumOfContacts,
         itemBuilder: (context, index) {
-          return FutureBuilder<Contacts>(
-            builder: (context, snapshot) {
-              //initState();
-              //print(infos);
-              if (snapshot.hasData)
-                return Text(snapshot.data!.phone_numbers.toString());
-              else if (snapshot.hasError) return Text("${snapshot.error}");
-              return CircularProgressIndicator();
-            },
-            future: futureContacts[index],
+          return ListTile(
+            title: FutureBuilder<Contacts>(
+              builder: (context, snapshot) {
+                //initState();
+                //print(infos);
+                if (snapshot.hasData)
+                  return Text(
+                      '${snapshot.data!.first_name.toString()} ${snapshot.data!.last_name.toString()}');
+                else if (snapshot.hasError) return Text("${snapshot.error}");
+                return Center(child: CircularProgressIndicator());
+              },
+              future: futureContacts[index],
+            ),
+            subtitle: FutureBuilder<Contacts>(
+              builder: (context, snapshot) {
+                //initState();
+                //print(infos);
+                if (snapshot.hasData)
+                  return Text(snapshot.data!.phone_numbers.toString());
+                else if (snapshot.hasError) return Text("${snapshot.error}");
+                return Center(child: CircularProgressIndicator());
+              },
+              future: futureContacts[index],
+            ),
           );
         });
   }
