@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
+const String host = 'http://192.168.254.101';
+
 void main() => runApp(const PbApp());
 
 class Todo {
@@ -221,7 +223,18 @@ class SecondScreeen extends StatelessWidget {
         padding: EdgeInsets.all(20.0),
         child: Column(
           children: [
-            Flexible(
+            const Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Local Variable',
+                  style: TextStyle(
+                      color: Colors.grey)),
+                ),
+            const Divider(
+              thickness: 1.0,
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 100),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: todo.length,
@@ -234,7 +247,20 @@ class SecondScreeen extends StatelessWidget {
                 },
               ),
             ),
-            Flexible(child: ContactsFromDatabase()),
+            const SizedBox(
+              height: 30.0,
+            ),
+            const Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                  'From Database',
+                  style: TextStyle(
+                      color: Colors.grey)),
+            ),
+            const Divider(
+              thickness: 1.0,
+            ),
+            const Expanded(child: ContactsFromDatabase()),
           ],
         ),
       ),
@@ -242,15 +268,16 @@ class SecondScreeen extends StatelessWidget {
   }
 }
 
-Future<Contacts> createContacts(String last_name, String first_name, List<dynamic> phone_numbers) async {
-  final res = await http.post(Uri.parse('http://192.168.254.104:5000/contacts'),
+Future<Contacts> createContacts(
+    String lastName, String firstName, List<dynamic> phoneNumbers) async {
+  final res = await http.post(Uri.parse('$host:5000/contacts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<dynamic, dynamic>{
-        'last_name': last_name,
-        'first_name': first_name,
-        'phone_numbers': phone_numbers
+        'last_name': lastName,
+        'first_name': firstName,
+        'phone_numbers': phoneNumbers
       }));
 
   if (res.statusCode == 201) {
@@ -261,7 +288,7 @@ Future<Contacts> createContacts(String last_name, String first_name, List<dynami
 }
 
 Future<Contacts> fetchContacts(int index) async {
-  final res = await http.get(Uri.parse('http://192.168.254.104:5000/contacts'));
+  final res = await http.get(Uri.parse('$host:5000/contacts'));
 
   if (res.statusCode == 200) {
     return Contacts.fromJson(jsonDecode(res.body)[index]);
@@ -270,11 +297,13 @@ Future<Contacts> fetchContacts(int index) async {
 }
 
 class Contacts {
+  final dynamic id;
   final String last_name;
   final String first_name;
   final List<dynamic> phone_numbers;
 
   Contacts({
+    required this.id,
     required this.last_name,
     required this.first_name,
     required this.phone_numbers,
@@ -282,6 +311,7 @@ class Contacts {
 
   factory Contacts.fromJson(Map<String, dynamic> json) {
     return Contacts(
+      id: json['_id'],
       last_name: json['last_name'],
       first_name: json['first_name'],
       phone_numbers: json['phone_numbers'],
@@ -312,15 +342,12 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
         }
       });
     });
-    //print(futureNumOfContacts);
-    //futureContacts = fetchContacts(0);
   }
 
   var infos;
 
   fetchNumOfContacts() async {
-    final req =
-    await http.get(Uri.parse('http://192.168.254.104:5000/contacts/total'));
+    final req = await http.get(Uri.parse('$host:5000/contacts/total'));
     infos = req.body;
     //print(infos);
     return infos;
@@ -331,30 +358,41 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
     return ListView.builder(
         itemCount: futureNumOfContacts,
         itemBuilder: (context, index) {
-          return ListTile(
-            title: FutureBuilder<Contacts>(
-              builder: (context, snapshot) {
-                //initState();
-                //print(infos);
-                if (snapshot.hasData)
-                  return Text(
-                      '${snapshot.data!.first_name.toString()} ${snapshot.data!.last_name.toString()}');
-                else if (snapshot.hasError) return Text("${snapshot.error}");
-                return Center(child: CircularProgressIndicator());
-              },
-              future: futureContacts[index],
-            ),
-            subtitle: FutureBuilder<Contacts>(
-              builder: (context, snapshot) {
-                //initState();
-                //print(infos);
-                if (snapshot.hasData)
-                  return Text(snapshot.data!.phone_numbers.toString());
-                else if (snapshot.hasError) return Text("${snapshot.error}");
-                return Center(child: CircularProgressIndicator());
-              },
-              future: futureContacts[index],
-            ),
+          return Row(
+            children: [
+              Expanded(
+                child: ListTile(
+                  title: FutureBuilder<Contacts>(
+                    builder: (context, contact) {
+                      if (contact.hasData)
+                        return Text(
+                            '${contact.data!.first_name.toString()} ${contact.data!.last_name.toString()}');
+                      else if (contact.hasError)
+                        return Text("${contact.error}");
+                      return Center(child: CircularProgressIndicator());
+                    },
+                    future: futureContacts[index],
+                  ),
+                  subtitle: FutureBuilder<Contacts>(
+                    builder: (context, snapshot) {
+                      //initState();
+                      //print(infos);
+                      if (snapshot.hasData)
+                        return Text(snapshot.data!.phone_numbers.toString());
+                      else if (snapshot.hasError)
+                        return Text("${snapshot.error}");
+                      return Center(child: CircularProgressIndicator());
+                    },
+                    future: futureContacts[index],
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () {},
+                child: const Icon(Icons.delete),
+                style: OutlinedButton.styleFrom(shape: CircleBorder()),
+              )
+            ],
           );
         });
   }
