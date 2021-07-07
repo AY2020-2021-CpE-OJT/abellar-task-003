@@ -224,17 +224,15 @@ class SecondScreeen extends StatelessWidget {
         child: Column(
           children: [
             const Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'Local Variable',
-                  style: TextStyle(
-                      color: Colors.grey)),
-                ),
+              alignment: Alignment.topLeft,
+              child:
+                  Text('Local Variable', style: TextStyle(color: Colors.grey)),
+            ),
             const Divider(
               thickness: 1.0,
             ),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 100),
+              constraints: const BoxConstraints(maxHeight: 75),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: todo.length,
@@ -252,10 +250,8 @@ class SecondScreeen extends StatelessWidget {
             ),
             const Align(
               alignment: Alignment.topLeft,
-              child: Text(
-                  'From Database',
-                  style: TextStyle(
-                      color: Colors.grey)),
+              child:
+                  Text('From Database', style: TextStyle(color: Colors.grey)),
             ),
             const Divider(
               thickness: 1.0,
@@ -296,6 +292,10 @@ Future<Contacts> fetchContacts(int index) async {
     throw Exception('Failed to load contacts');
 }
 
+deleteContact(String id) async {
+  final res = await http.get(Uri.parse('$host:5000/contacts/delete/$id'));
+}
+
 class Contacts {
   final dynamic id;
   final String last_name;
@@ -329,7 +329,6 @@ class ContactsFromDatabase extends StatefulWidget {
 class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   List<Future<Contacts>> futureContacts = <Future<Contacts>>[];
   late int futureNumOfContacts = 0;
-  late var samstring = '';
 
   @override
   void initState() {
@@ -345,18 +344,18 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   }
 
   var infos;
+  var idFromDatabase;
 
   fetchNumOfContacts() async {
     final req = await http.get(Uri.parse('$host:5000/contacts/total'));
     infos = req.body;
-    //print(infos);
     return infos;
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: futureNumOfContacts,
+        itemCount: futureContacts.length,
         itemBuilder: (context, index) {
           return Row(
             children: [
@@ -364,33 +363,50 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                 child: ListTile(
                   title: FutureBuilder<Contacts>(
                     builder: (context, contact) {
-                      if (contact.hasData)
+                      if (contact.hasData) {
                         return Text(
                             '${contact.data!.first_name.toString()} ${contact.data!.last_name.toString()}');
-                      else if (contact.hasError)
+                      } else if (contact.hasError)
                         return Text("${contact.error}");
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     },
                     future: futureContacts[index],
                   ),
                   subtitle: FutureBuilder<Contacts>(
-                    builder: (context, snapshot) {
+                    builder: (context, contact) {
                       //initState();
                       //print(infos);
-                      if (snapshot.hasData)
-                        return Text(snapshot.data!.phone_numbers.toString());
-                      else if (snapshot.hasError)
-                        return Text("${snapshot.error}");
-                      return Center(child: CircularProgressIndicator());
+                      if (contact.hasData) {
+                        return Text(contact.data!.id.toString());
+                      } else if (contact.hasError)
+                        idFromDatabase = contact.data!.id.toString();
+                      return Text("${contact.error}");
+                      return const Center(child: CircularProgressIndicator());
                     },
                     future: futureContacts[index],
                   ),
                 ),
               ),
-              OutlinedButton(
-                onPressed: () {},
-                child: const Icon(Icons.delete),
-                style: OutlinedButton.styleFrom(shape: CircleBorder()),
+              FutureBuilder<Contacts>(
+                builder: (context, contact) {
+                  return OutlinedButton(
+                    onPressed: () {
+                      deleteContact(contact.data!.id.toString());
+                      fetchNumOfContacts().then((value) {
+                        setState(() {
+                          futureContacts.removeAt(index);
+                        });
+                        futureNumOfContacts--;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.delete,
+                      size: 15.0,
+                    ),
+                    style: OutlinedButton.styleFrom(shape: CircleBorder()),
+                  );
+                },
+                future: futureContacts[index],
               )
             ],
           );
