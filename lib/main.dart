@@ -243,7 +243,7 @@ class SecondScreeen extends StatelessWidget {
 }
 
 Future<Contacts> createContacts(String last_name, String first_name, List<dynamic> phone_numbers) async {
-  final res = await http.post(Uri.parse('http://192.168.254.102:5000/contacts'),
+  final res = await http.post(Uri.parse('http://192.168.254.106:5000/contacts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -261,7 +261,7 @@ Future<Contacts> createContacts(String last_name, String first_name, List<dynami
 }
 
 Future<Contacts> fetchContacts(int index) async {
-  final res = await http.get(Uri.parse('http://192.168.254.102:5000/contacts'));
+  final res = await http.get(Uri.parse('http://192.168.254.106:5000/contacts'));
 
   if (res.statusCode == 200) {
     return Contacts.fromJson(jsonDecode(res.body)[index]);
@@ -322,7 +322,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
 
   fetchNumOfContacts() async {
     final req =
-    await http.get(Uri.parse('http://192.168.254.102:5000/contacts/total'));
+    await http.get(Uri.parse('http://192.168.254.106:5000/contacts/total'));
     infos = req.body;
     //print(infos);
     return infos;
