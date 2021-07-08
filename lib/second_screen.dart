@@ -5,10 +5,23 @@ import 'main.dart';
 import 'edit_widget.dart';
 
 
-class SecondScreen extends StatelessWidget {
+class SecondScreen extends StatefulWidget {
   final List<ContactLocal> todo;
 
-  SecondScreen({Key? key, required this.todo}) : super(key: key);
+  SecondScreen({Key? key, required this.todo,}) : super(key: key);
+
+  @override
+  State<SecondScreen> createState() => _SecondScreenState();
+
+  static _SecondScreenState? of(BuildContext context) => context.findAncestorStateOfType<_SecondScreenState>();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  bool _visibilityOfEditWidget = true;
+
+  set editVisibilityOfWidget(bool val) => setState(() {
+    _visibilityOfEditWidget = val;
+  });
 
   final editLastName = TextEditingController();
   final editFirstName = TextEditingController();
@@ -36,12 +49,12 @@ class SecondScreen extends StatelessWidget {
                 constraints: const BoxConstraints(maxHeight: 75),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: todo.length,
+                  itemCount: widget.todo.length,
                   itemBuilder: (context, index) {
                     return ListTile(
                       title: Text(
-                          '${todo[index].firstName} ${todo[index].lastName}'),
-                      subtitle: Text('${todo[index].phoneNumbers}'),
+                          '${widget.todo[index].firstName} ${widget.todo[index].lastName}'),
+                      subtitle: Text('${widget.todo[index].phoneNumbers}'),
                     );
                   },
                 ),
@@ -61,7 +74,7 @@ class SecondScreen extends StatelessWidget {
             ],
           ),
         ),
-        EditContactWidget(),
+        EditContactWidget(visibility: _visibilityOfEditWidget,),
       ]),
     );
   }

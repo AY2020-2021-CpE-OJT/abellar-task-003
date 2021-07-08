@@ -6,22 +6,34 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import 'second_screen.dart';
+import 'main.dart';
+import 'contacts_db.dart';
 
 class EditContactWidget extends StatefulWidget {
-  const EditContactWidget({Key? key}) : super(key: key);
+  bool visibility;
+
+  EditContactWidget({Key? key, required this.visibility}) : super(key: key);
 
   @override
-  _EditContactWidgetState createState() => _EditContactWidgetState();
+  EditContactWidgetState createState() => EditContactWidgetState();
 }
 
-class _EditContactWidgetState extends State<EditContactWidget> {
+class EditContactWidgetState extends State<EditContactWidget> {
+
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: true,
+      visible: widget.visibility,
       child: Stack(children: [
-        Container(
-          color: Colors.black.withOpacity(0.75),
+        InkWell(
+          onTap: () {
+            setState(() {
+              widget.visibility = false;
+            });
+          },
+          child: Container(
+            color: Colors.black.withOpacity(0.75),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 75),

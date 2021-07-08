@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:abellar_task_003/edit_widget.dart';
+import 'package:abellar_task_003/second_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'main.dart';
-
 
 class ContactsFromDatabase extends StatefulWidget {
   const ContactsFromDatabase({Key? key}) : super(key: key);
@@ -56,8 +57,6 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                   ),
                   subtitle: FutureBuilder<Contacts>(
                     builder: (context, contact) {
-                      //initState();
-                      //print(infos);
                       if (contact.hasData) {
                         return Text(contact.data!.phoneNumbers
                             .toString()
@@ -68,6 +67,9 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                     },
                     future: futureContacts[index],
                   ),
+                  onLongPress: () {
+                    SecondScreen.of(context)!.editVisibilityOfWidget = true;
+                  },
                 ),
               ),
               FutureBuilder<Contacts>(
