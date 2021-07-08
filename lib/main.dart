@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
-const String host = 'http://192.168.254.101';
+const String host = 'http://192.168.254.101:5000';
+//const String host = 'https://test-heroku-3154.herokuapp.com';
 
 void main() => runApp(const PbApp());
 
@@ -65,7 +66,7 @@ class _InputContactFormState extends State<InputContactForm> {
       _futureContacts = createContacts(lnameCtrlr.text, fnameCtrlr.text, pnums);
     });
 
-    final snackBar = SnackBar(
+    const snackBar = SnackBar(
       content: Text('Successfully Submitted Contacts'),
     );
 
@@ -76,7 +77,7 @@ class _InputContactFormState extends State<InputContactForm> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SecondScreeen(todo: names_todo)));
+            builder: (context) => SecondScreen(todo: names_todo)));
   }
 
   void addPhoneNumber() {
@@ -97,8 +98,6 @@ class _InputContactFormState extends State<InputContactForm> {
 
   final lnameCtrlr = TextEditingController();
   final fnameCtrlr = TextEditingController();
-
-  //final pnumCtrlr = TextEditingController();
   List<TextEditingController> pnumCtrlrs = <TextEditingController>[
     TextEditingController()
   ];
@@ -208,10 +207,10 @@ class _InputContactFormState extends State<InputContactForm> {
   }
 }
 
-class SecondScreeen extends StatelessWidget {
+class SecondScreen extends StatelessWidget {
   final List<Todo> todo;
 
-  const SecondScreeen({Key? key, required this.todo}) : super(key: key);
+  const SecondScreen({Key? key, required this.todo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +265,7 @@ class SecondScreeen extends StatelessWidget {
 
 Future<Contacts> createContacts(
     String lastName, String firstName, List<dynamic> phoneNumbers) async {
-  final res = await http.post(Uri.parse('$host:5000/contacts'),
+  final res = await http.post(Uri.parse('$host/contacts'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -284,37 +283,38 @@ Future<Contacts> createContacts(
 }
 
 Future<Contacts> fetchContacts(int index) async {
-  final res = await http.get(Uri.parse('$host:5000/contacts'));
+  final res = await http.get(Uri.parse('$host/contacts'));
 
   if (res.statusCode == 200) {
     return Contacts.fromJson(jsonDecode(res.body)[index]);
-  } else
+  } else {
     throw Exception('Failed to load contacts');
+  }
 }
 
 deleteContact(String id) async {
-  final res = await http.get(Uri.parse('$host:5000/contacts/delete/$id'));
+  await http.delete(Uri.parse('$host/contacts/delete/$id'));
 }
 
 class Contacts {
   final dynamic id;
-  final String last_name;
-  final String first_name;
-  final List<dynamic> phone_numbers;
+  final String lastName;
+  final String firstName;
+  final List<dynamic> phoneNumbers;
 
   Contacts({
     required this.id,
-    required this.last_name,
-    required this.first_name,
-    required this.phone_numbers,
+    required this.lastName,
+    required this.firstName,
+    required this.phoneNumbers,
   });
 
   factory Contacts.fromJson(Map<String, dynamic> json) {
     return Contacts(
       id: json['_id'],
-      last_name: json['last_name'],
-      first_name: json['first_name'],
-      phone_numbers: json['phone_numbers'],
+      lastName: json['last_name'],
+      firstName: json['first_name'],
+      phoneNumbers: json['phone_numbers'],
     );
   }
 }
@@ -343,13 +343,9 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
     });
   }
 
-  var infos;
-  var idFromDatabase;
-
   fetchNumOfContacts() async {
-    final req = await http.get(Uri.parse('$host:5000/contacts/total'));
-    infos = req.body;
-    return infos;
+    final req = await http.get(Uri.parse('$host/contacts/total'));
+    return req.body;
   }
 
   @override
@@ -365,9 +361,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                     builder: (context, contact) {
                       if (contact.hasData) {
                         return Text(
-                            '${contact.data!.first_name.toString()} ${contact.data!.last_name.toString()}');
-                      } else if (contact.hasError)
-                        return Text("${contact.error}");
+                            '${contact.data!.firstName.toString()} ${contact.data!.lastName.toString()}');
+                      } else if (contact.hasError) return Text("${contact.error}");
                       return const Center(child: CircularProgressIndicator());
                     },
                     future: futureContacts[index],
@@ -377,11 +372,9 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                       //initState();
                       //print(infos);
                       if (contact.hasData) {
-                        return Text(contact.data!.id.toString());
-                      } else if (contact.hasError)
-                        idFromDatabase = contact.data!.id.toString();
-                      return Text("${contact.error}");
-                      return const Center(child: CircularProgressIndicator());
+                        return Text(contact.data!.phoneNumbers.toString().replaceAll("[", "").replaceAll("]", ""));
+                      } else if (contact.hasError) return Text("${contact.error}");
+                      return const Center(child: Text('Loading Data'));
                     },
                     future: futureContacts[index],
                   ),
@@ -403,7 +396,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                       Icons.delete,
                       size: 15.0,
                     ),
-                    style: OutlinedButton.styleFrom(shape: CircleBorder()),
+                    style: OutlinedButton.styleFrom(shape: const CircleBorder()),
                   );
                 },
                 future: futureContacts[index],
