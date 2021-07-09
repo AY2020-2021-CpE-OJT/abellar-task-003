@@ -8,9 +8,7 @@ import 'package:http/http.dart' as http;
 import 'main.dart';
 
 class ContactsFromDatabase extends StatefulWidget {
-  final int addNumber;
-
-  const ContactsFromDatabase({Key? key, required this.addNumber}) : super(key: key);
+  const ContactsFromDatabase({Key? key}) : super(key: key);
 
   @override
   _ContactsFromDatabaseState createState() => _ContactsFromDatabaseState();
@@ -19,6 +17,7 @@ class ContactsFromDatabase extends StatefulWidget {
 class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   List<Future<Contacts>> futureContacts = <Future<Contacts>>[];
   late int futureNumOfContacts = 0;
+  int pnAdd = 0;
 
   @override
   void initState() {
@@ -41,6 +40,103 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   final lNameEditCtrl = TextEditingController();
   final fNameEditCtrl = TextEditingController();
   List<TextEditingController> pNumbersCtrl = [];
+  
+  FutureBuilder<Contacts> buildEditWidget(int index) {
+    return FutureBuilder(
+      builder: (context, contact) {
+        if (contact.hasData) {
+          for (int i = 0; i < contact.data!.phoneNumbers.length + pnAdd; i++) {
+            pNumbersCtrl.add(TextEditingController());
+          }
+          return Column(
+            children: [
+              Flexible(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding:
+                        const EdgeInsets.only(right: 5.0),
+                        child: TextFormField(
+                          controller: fNameEditCtrl,
+                          decoration: InputDecoration(
+                              labelText: contact.data!.firstName
+                                  .toString()),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        controller: lNameEditCtrl,
+                        decoration: InputDecoration(
+                            labelText: contact.data!.lastName
+                                .toString()),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: ListView.builder(
+                    itemCount: contact.data!.phoneNumbers.length + pnAdd,
+                    itemBuilder: (context, index) {
+                      return TextFormField(
+                        controller: pNumbersCtrl[index],
+                        decoration: InputDecoration(
+                            labelText: 'Phone Number #${index+1}'),
+                      );
+                    }),
+              ),
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        pnAdd++;
+                        SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index);
+                      },
+                      child: const Icon(Icons.add),
+                      style: OutlinedButton.styleFrom(
+                          shape: const CircleBorder()),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+
+                      },
+                      child: const Icon(Icons.remove),
+                      style: OutlinedButton.styleFrom(
+                          shape: const CircleBorder()),
+                    ),
+                    Expanded(
+                      child: ElevatedButton(
+                        child: const Text('Confirm'),
+                        onPressed: () {
+                          //Update
+                          List<String> pNumbers = [];
+                          for (int i = 0; i < pNumbersCtrl.length; i++) {
+                            pNumbers.add(pNumbersCtrl[i].text);
+                          }
+                          updateContact(
+                              lNameEditCtrl.text,
+                              fNameEditCtrl.text,
+                              pNumbers,
+                              contact.data!.id);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+        return const Text('');
+      },
+      future: futureContacts[index],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,188 +175,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                   ),
                   onLongPress: () {
                     SecondScreen.of(context)!.editVisibilityOfWidget = true;
-                    SecondScreen.of(context)!.editToBeEdit = FutureBuilder(
-                      builder: (context, contact) {
-                        if (contact.hasData) {
-                          for (int i = 0; i < contact.data!.phoneNumbers.length + widget.addNumber; i++) {
-                            pNumbersCtrl.add(TextEditingController());
-                          }
-                          return Column(
-                            children: [
-                              Flexible(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 5.0),
-                                        child: TextFormField(
-                                          controller: fNameEditCtrl,
-                                          decoration: InputDecoration(
-                                              labelText: contact.data!.firstName
-                                                  .toString()),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: TextFormField(
-                                        controller: lNameEditCtrl,
-                                        decoration: InputDecoration(
-                                            labelText: contact.data!.lastName
-                                                .toString()),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: ListView.builder(
-                                    itemCount: contact.data!.phoneNumbers.length + widget.addNumber,
-                                    itemBuilder: (context, index) {
-                                      return TextFormField(
-                                        controller: pNumbersCtrl[index],
-                                        decoration: InputDecoration(
-                                            labelText: 'Phone Number #${index+1}'),
-                                      );
-                                    }),
-                              ),
-                              Flexible(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    OutlinedButton(
-                                      onPressed: () {
-                                        SecondScreen.of(context)!.addPnToBeAdded = widget.addNumber + 1;
-                                        SecondScreen.of(context)!.editToBeEdit = FutureBuilder(
-                                          builder: (context, contact) {
-                                            if (contact.hasData) {
-                                              for (int i = 0; i < contact.data!.phoneNumbers.length + widget.addNumber; i++) {
-                                                pNumbersCtrl.add(TextEditingController());
-                                              }
-                                              return Column(
-                                                children: [
-                                                  Flexible(
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Padding(
-                                                            padding:
-                                                            const EdgeInsets.only(right: 5.0),
-                                                            child: TextFormField(
-                                                              controller: fNameEditCtrl,
-                                                              decoration: InputDecoration(
-                                                                  labelText: contact.data!.firstName
-                                                                      .toString()),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: TextFormField(
-                                                            controller: lNameEditCtrl,
-                                                            decoration: InputDecoration(
-                                                                labelText: contact.data!.lastName
-                                                                    .toString()),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 3,
-                                                    child: ListView.builder(
-                                                        itemCount: contact.data!.phoneNumbers.length + widget.addNumber,
-                                                        itemBuilder: (context, index) {
-                                                          return TextFormField(
-                                                            controller: pNumbersCtrl[index],
-                                                            decoration: InputDecoration(
-                                                                labelText: 'Phone Number #${index+1}'),
-                                                          );
-                                                        }),
-                                                  ),
-                                                  Flexible(
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        OutlinedButton(
-                                                          onPressed: () {
-                                                            SecondScreen.of(context)!.addPnToBeAdded = widget.addNumber + 1;
-                                                          },
-                                                          child: const Icon(Icons.add),
-                                                          style: OutlinedButton.styleFrom(
-                                                              shape: const CircleBorder()),
-                                                        ),
-                                                        OutlinedButton(
-                                                          onPressed: () {},
-                                                          child: const Icon(Icons.remove),
-                                                          style: OutlinedButton.styleFrom(
-                                                              shape: const CircleBorder()),
-                                                        ),
-                                                        Expanded(
-                                                          child: ElevatedButton(
-                                                            child: const Text('Confirm'),
-                                                            onPressed: () {
-                                                              //Update
-                                                              List<String> pNumbers = [];
-                                                              for (int i = 0; i < pNumbersCtrl.length; i++) {
-                                                                pNumbers.add(pNumbersCtrl[i].text);
-                                                              }
-                                                              updateContact(
-                                                                  lNameEditCtrl.text,
-                                                                  fNameEditCtrl.text,
-                                                                  pNumbers,
-                                                                  contact.data!.id);
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            }
-                                            return const Text('');
-                                          },
-                                          future: futureContacts[index],
-                                        );
-                                      },
-                                      child: const Icon(Icons.add),
-                                      style: OutlinedButton.styleFrom(
-                                          shape: const CircleBorder()),
-                                    ),
-                                    OutlinedButton(
-                                      onPressed: () {},
-                                      child: const Icon(Icons.remove),
-                                      style: OutlinedButton.styleFrom(
-                                          shape: const CircleBorder()),
-                                    ),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        child: const Text('Confirm'),
-                                        onPressed: () {
-                                          //Update
-                                          List<String> pNumbers = [];
-                                          for (int i = 0; i < pNumbersCtrl.length; i++) {
-                                            pNumbers.add(pNumbersCtrl[i].text);
-                                          }
-                                          updateContact(
-                                              lNameEditCtrl.text,
-                                              fNameEditCtrl.text,
-                                              pNumbers,
-                                              contact.data!.id);
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        return const Text('');
-                      },
-                      future: futureContacts[index],
-                    );
+                    SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index);
                   },
                 ),
               ),
@@ -291,3 +206,4 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
         });
   }
 }
+

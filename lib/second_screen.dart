@@ -19,7 +19,6 @@ class SecondScreen extends StatefulWidget {
 
 class _SecondScreenState extends State<SecondScreen> {
   bool _visibilityOfEditWidget = false;
-  int pnToBeAdded = 0;
 
   FutureBuilder<Contacts> _toBeEdit = FutureBuilder(builder: (context, contact) {return const Text('Loading...');});
 
@@ -28,9 +27,6 @@ class _SecondScreenState extends State<SecondScreen> {
   });
   set editToBeEdit(FutureBuilder<Contacts> val) => setState(() {
     _toBeEdit = val;
-  });
-  set addPnToBeAdded(int val) => setState(() {
-    pnToBeAdded = val;
   });
 
   void reset() {
@@ -86,7 +82,7 @@ class _SecondScreenState extends State<SecondScreen> {
               const Divider(
                 thickness: 1.0,
               ),
-              Expanded(child: ContactsFromDatabase(addNumber: pnToBeAdded,)),
+              Expanded(child: const ContactsFromDatabase()),
             ],
           ),
         ),
