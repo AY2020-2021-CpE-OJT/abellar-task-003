@@ -39,12 +39,6 @@ class EditContactWidget extends StatefulWidget {
 
 class _EditContactWidgetState extends State<EditContactWidget> {
 
-  void reset() {
-    setState(() {
-
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Visibility(
@@ -69,23 +63,26 @@ class _EditContactWidgetState extends State<EditContactWidget> {
                 color: Colors.white,
                 borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Column(
-                  children: [
-                    const Icon(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
                       Icons.account_circle_rounded,
                       size: 50,
                     ),
-                    const Text(
+                  ),
+                  const Center(
+                    child: Text(
                       'Edit Contacts',
                       style: TextStyle(
                         fontSize: 25,
                       ),
                     ),
-                    Flexible(child: widget.toBeEdit),
-                  ],
-                ),
+                  ),
+                  widget.toBeEdit,
+                ],
               ),
             ),
           ),
