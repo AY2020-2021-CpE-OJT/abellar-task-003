@@ -39,9 +39,10 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
 
   final lNameEditCtrl = TextEditingController();
   final fNameEditCtrl = TextEditingController();
-  List<TextEditingController> pNumbersCtrl = [];
+
   
   FutureBuilder<Contacts> buildEditWidget(int index) {
+    List<TextEditingController> pNumbersCtrl = [];
     return FutureBuilder(
       builder: (context, contact) {
         if (contact.hasData) {
@@ -103,7 +104,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                     ),
                     OutlinedButton(
                       onPressed: () {
-
+                        if(contact.data!.phoneNumbers.length + pnAdd > 0) pnAdd--;
+                        SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index);
                       },
                       child: const Icon(Icons.remove),
                       style: OutlinedButton.styleFrom(
