@@ -74,7 +74,7 @@ class EditContactWidgetState extends State<EditContactWidget> {
                         fontSize: 25,
                       ),
                     ),
-                    Expanded(child: widget.toBeEdit),
+                    Flexible(child: widget.toBeEdit),
                   ],
                 ),
               ),
