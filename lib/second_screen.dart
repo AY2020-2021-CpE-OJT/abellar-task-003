@@ -82,7 +82,7 @@ class _SecondScreenState extends State<SecondScreen> {
               const Divider(
                 thickness: 1.0,
               ),
-              Expanded(child: const ContactsFromDatabase()),
+              const Expanded(child: ContactsFromDatabase()),
             ],
           ),
         ),

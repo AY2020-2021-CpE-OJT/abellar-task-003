@@ -40,7 +40,6 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   final lNameEditCtrl = TextEditingController();
   final fNameEditCtrl = TextEditingController();
 
-  
   FutureBuilder<Contacts> buildEditWidget(int index) {
     List<TextEditingController> pNumbersCtrl = [];
     return FutureBuilder(
@@ -50,7 +49,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
             pNumbersCtrl.add(TextEditingController());
           }
           return ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height-350),
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height - 350),
             child: Column(
               children: [
                 Flexible(
@@ -58,13 +58,11 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding:
-                          const EdgeInsets.only(right: 5.0),
+                          padding: const EdgeInsets.only(right: 5.0),
                           child: TextFormField(
                             controller: fNameEditCtrl,
                             decoration: InputDecoration(
-                                labelText: contact.data!.firstName
-                                    .toString()),
+                                labelText: contact.data!.firstName.toString()),
                           ),
                         ),
                       ),
@@ -72,8 +70,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                         child: TextFormField(
                           controller: lNameEditCtrl,
                           decoration: InputDecoration(
-                              labelText: contact.data!.lastName
-                                  .toString()),
+                              labelText: contact.data!.lastName.toString()),
                         ),
                       ),
                     ],
@@ -87,7 +84,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                         return TextFormField(
                           controller: pNumbersCtrl[index],
                           decoration: InputDecoration(
-                              labelText: 'Phone Number #${index+1}'),
+                              labelText: 'Phone Number #${index + 1}'),
                         );
                       }),
                 ),
@@ -98,7 +95,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                       OutlinedButton(
                         onPressed: () {
                           pnAdd++;
-                          SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index);
+                          SecondScreen.of(context)!.editToBeEdit =
+                              buildEditWidget(index);
                         },
                         child: const Icon(Icons.add),
                         style: OutlinedButton.styleFrom(
@@ -106,8 +104,11 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                       ),
                       OutlinedButton(
                         onPressed: () {
-                          if(contact.data!.phoneNumbers.length + pnAdd > 0) pnAdd--;
-                          SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index);
+                          if (contact.data!.phoneNumbers.length + pnAdd > 0) {
+                            pnAdd--;
+                          }
+                          SecondScreen.of(context)!.editToBeEdit =
+                              buildEditWidget(index);
                         },
                         child: const Icon(Icons.remove),
                         style: OutlinedButton.styleFrom(
@@ -122,11 +123,20 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                             for (int i = 0; i < pNumbersCtrl.length; i++) {
                               pNumbers.add(pNumbersCtrl[i].text);
                             }
-                            updateContact(
-                                lNameEditCtrl.text,
-                                fNameEditCtrl.text,
-                                pNumbers,
-                                contact.data!.id);
+                            updateContact(lNameEditCtrl.text,
+                                fNameEditCtrl.text, pNumbers, contact.data!.id);
+                            setState(() {
+                              SecondScreen.of(context)!.editVisibilityOfWidget = false;
+                            });
+                            futureContacts.clear();
+                            fetchNumOfContacts().then((value) {
+                              setState(() {
+                                futureNumOfContacts = int.parse(value);
+                                for (int i = 0; i < futureNumOfContacts; i++) {
+                                  futureContacts.insert(i, fetchContacts(i));
+                                }
+                              });
+                            });
                           },
                         ),
                       ),
@@ -180,7 +190,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                   ),
                   onLongPress: () {
                     SecondScreen.of(context)!.editVisibilityOfWidget = true;
-                    SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index);
+                    SecondScreen.of(context)!.editToBeEdit =
+                        buildEditWidget(index);
                   },
                 ),
               ),
@@ -211,4 +222,3 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
         });
   }
 }
-
