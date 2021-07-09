@@ -36,6 +36,10 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
     return req.body;
   }
 
+  final lNameEditCtrl = TextEditingController();
+  final fNameEditCtrl = TextEditingController();
+  List<TextEditingController> pNumbersCtrl = [];
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -73,10 +77,53 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                     SecondScreen.of(context)!.editVisibilityOfWidget = true;
                     SecondScreen.of(context)!.editToBeEdit = FutureBuilder(
                       builder: (context, contact) {
-                        return TextFormField(
-                          decoration: InputDecoration(
-                              labelText: contact.data!.firstName.toString()),
-                        );
+                        if (contact.hasData) {
+                          for (int i = 0; i < contact.data!.phoneNumbers.length; i++) {
+                            pNumbersCtrl.add(TextEditingController());
+                          }
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 5.0),
+                                      child: TextFormField(
+                                        controller: fNameEditCtrl,
+                                        decoration: InputDecoration(
+                                            labelText: contact.data!.firstName.toString()),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: lNameEditCtrl,
+                                      decoration: InputDecoration(
+                                        labelText: contact.data!.lastName.toString()
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Expanded(
+                                child: ListView.builder(itemCount: contact.data!.phoneNumbers.length, itemBuilder: (context, index) {
+                                  return TextFormField(controller: pNumbersCtrl[index],decoration: InputDecoration(labelText: contact.data!.phoneNumbers[index]),);
+                                }),
+                              ),
+                              ElevatedButton(
+                                child: const Text('Confirm'),
+                                  onPressed: () {
+                                    List<String> pNumbers = [];
+                                    for(int i = 0; i < pNumbersCtrl.length; i++) {
+                                      pNumbers.add(pNumbersCtrl[i].text);
+                                    }
+                                    updateContact(lNameEditCtrl.text, fNameEditCtrl.text, pNumbers, contact.data!.id);
+                                  },
+                              )
+                            ],
+                          );
+                        }
+                        return const Text('');
                       },
                       future: futureContacts[index],
                     );

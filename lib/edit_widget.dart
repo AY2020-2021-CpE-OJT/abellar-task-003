@@ -9,6 +9,20 @@ import 'second_screen.dart';
 import 'main.dart';
 import 'contacts_db.dart';
 
+updateContact(String lName, String fName, List<dynamic> pNumbers,
+    String id) async {
+  await http.put(Uri.parse('$host/contacts/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(<dynamic, dynamic>{
+        'last_name': lName,
+        'first_name': fName,
+        'phone_numbers': pNumbers
+      }));
+}
+
+
 class EditContactWidget extends StatefulWidget {
   bool visibility;
   final FutureBuilder<Contacts> toBeEdit;
@@ -39,7 +53,7 @@ class EditContactWidgetState extends State<EditContactWidget> {
         ),
         Padding(
           padding:
-              const EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 75),
+          const EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 75),
           child: Center(
             child: Container(
               decoration: const BoxDecoration(
@@ -47,7 +61,7 @@ class EditContactWidgetState extends State<EditContactWidget> {
                 borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(30.0),
                 child: Column(
                   children: [
                     const Icon(
