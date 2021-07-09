@@ -11,15 +11,17 @@ import 'contacts_db.dart';
 
 class EditContactWidget extends StatefulWidget {
   bool visibility;
+  final FutureBuilder<Contacts> toBeEdit;
 
-  EditContactWidget({Key? key, required this.visibility}) : super(key: key);
+  EditContactWidget(
+      {Key? key, required this.visibility, required this.toBeEdit})
+      : super(key: key);
 
   @override
   EditContactWidgetState createState() => EditContactWidgetState();
 }
 
 class EditContactWidgetState extends State<EditContactWidget> {
-
   @override
   Widget build(BuildContext context) {
     return Visibility(
@@ -36,7 +38,8 @@ class EditContactWidgetState extends State<EditContactWidget> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 75),
+          padding:
+              const EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 75),
           child: Center(
             child: Container(
               decoration: const BoxDecoration(
@@ -57,8 +60,7 @@ class EditContactWidgetState extends State<EditContactWidget> {
                         fontSize: 25,
                       ),
                     ),
-                    TextFormField(),
-                    TextFormField(),
+                    Expanded(child: widget.toBeEdit),
                   ],
                 ),
               ),

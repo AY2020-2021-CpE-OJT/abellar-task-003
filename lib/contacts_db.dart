@@ -50,7 +50,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                       if (contact.hasData) {
                         return Text(
                             '${contact.data!.firstName.toString()} ${contact.data!.lastName.toString()}');
-                      } else if (contact.hasError) return Text("${contact.error}");
+                      } else if (contact.hasError)
+                        return Text("${contact.error}");
                       return const Center(child: CircularProgressIndicator());
                     },
                     future: futureContacts[index],
@@ -62,13 +63,23 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                             .toString()
                             .replaceAll("[", "")
                             .replaceAll("]", ""));
-                      } else if (contact.hasError) return Text("${contact.error}");
+                      } else if (contact.hasError)
+                        return Text("${contact.error}");
                       return const Center(child: Text('Loading Data'));
                     },
                     future: futureContacts[index],
                   ),
                   onLongPress: () {
                     SecondScreen.of(context)!.editVisibilityOfWidget = true;
+                    SecondScreen.of(context)!.editToBeEdit = FutureBuilder(
+                      builder: (context, contact) {
+                        return TextFormField(
+                          decoration: InputDecoration(
+                              labelText: contact.data!.firstName.toString()),
+                        );
+                      },
+                      future: futureContacts[index],
+                    );
                   },
                 ),
               ),
@@ -89,7 +100,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                       size: 15.0,
                     ),
                     style:
-                    OutlinedButton.styleFrom(shape: const CircleBorder()),
+                        OutlinedButton.styleFrom(shape: const CircleBorder()),
                   );
                 },
                 future: futureContacts[index],
