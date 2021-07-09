@@ -28,14 +28,23 @@ class EditContactWidget extends StatefulWidget {
   final FutureBuilder<Contacts> toBeEdit;
 
   EditContactWidget(
-      {Key? key, required this.visibility, required this.toBeEdit})
+      {Key? key, required this.visibility, required this.toBeEdit,})
       : super(key: key);
 
   @override
-  EditContactWidgetState createState() => EditContactWidgetState();
+  _EditContactWidgetState createState() => _EditContactWidgetState();
+
+  static _EditContactWidgetState? of(BuildContext context) => context.findAncestorStateOfType<_EditContactWidgetState>();
 }
 
-class EditContactWidgetState extends State<EditContactWidget> {
+class _EditContactWidgetState extends State<EditContactWidget> {
+
+  void reset() {
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Visibility(
