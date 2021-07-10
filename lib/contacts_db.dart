@@ -53,6 +53,50 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                 maxHeight: MediaQuery.of(context).size.height - 350),
             child: Column(
               children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {},
+                      child: const Icon(
+                        Icons.call,
+                        size: 10,
+                      ),
+                      style:
+                          OutlinedButton.styleFrom(shape: const CircleBorder()),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        deleteContact(contact.data!.id.toString());
+                        fetchNumOfContacts().then((value) {
+                          setState(() {
+                            futureContacts.removeAt(index);
+                          });
+                          futureNumOfContacts--;
+                          setState(() {
+                            SecondScreen.of(context)!.editVisibilityOfWidget =
+                                false;
+                          });
+                        });
+                      },
+                      child: const Icon(
+                        Icons.delete,
+                        size: 10,
+                      ),
+                      style:
+                          OutlinedButton.styleFrom(shape: const CircleBorder()),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {},
+                      child: const Icon(
+                        Icons.edit,
+                        size: 10,
+                      ),
+                      style:
+                      OutlinedButton.styleFrom(shape: const CircleBorder()),
+                    ),
+                  ],
+                ),
                 Flexible(
                   child: Row(
                     children: [
@@ -126,7 +170,8 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                             updateContact(lNameEditCtrl.text,
                                 fNameEditCtrl.text, pNumbers, contact.data!.id);
                             setState(() {
-                              SecondScreen.of(context)!.editVisibilityOfWidget = false;
+                              SecondScreen.of(context)!.editVisibilityOfWidget =
+                                  false;
                             });
                             futureContacts.clear();
                             fetchNumOfContacts().then((value) {
