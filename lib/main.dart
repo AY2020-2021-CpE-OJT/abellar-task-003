@@ -107,7 +107,6 @@ class _InputContactFormState extends State<InputContactForm> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         children: [
           Row(
             children: [
@@ -141,7 +140,7 @@ class _InputContactFormState extends State<InputContactForm> {
           Flexible(
             flex: 0,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 0.0),
+              constraints: BoxConstraints(minHeight: 0.0, maxHeight: MediaQuery.of(context).size.height - 350),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemBuilder: (context, i) {
