@@ -24,10 +24,10 @@ updateContact(String lName, String fName, List<dynamic> pNumbers,
 
 
 class EditContactWidget extends StatefulWidget {
-  bool visibility;
+  final bool visibility;
   final FutureBuilder<Contacts> toBeEdit;
 
-  EditContactWidget(
+  const EditContactWidget(
       {Key? key, required this.visibility, required this.toBeEdit,})
       : super(key: key);
 
@@ -41,13 +41,14 @@ class _EditContactWidgetState extends State<EditContactWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool visibility = widget.visibility;
     return Visibility(
-      visible: widget.visibility,
+      visible: visibility,
       child: Stack(children: [
         InkWell(
           onTap: () {
             setState(() {
-              widget.visibility = false;
+              SecondScreen.of(context)!.editVisibilityOfWidget = false;
             });
           },
           child: Container(
