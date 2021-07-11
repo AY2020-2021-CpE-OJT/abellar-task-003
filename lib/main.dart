@@ -34,7 +34,6 @@ class PbApp extends StatelessWidget {
   }
 }
 
-
 class FirstScreen extends StatelessWidget {
   const FirstScreen({Key? key}) : super(key: key);
 
@@ -145,7 +144,9 @@ class _InputContactFormState extends State<InputContactForm> {
           Flexible(
             flex: 0,
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: 0.0, maxHeight: MediaQuery.of(context).size.height - 350),
+              constraints: BoxConstraints(
+                  minHeight: 0.0,
+                  maxHeight: MediaQuery.of(context).size.height - 350),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemBuilder: (context, i) {
@@ -167,13 +168,15 @@ class _InputContactFormState extends State<InputContactForm> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               OutlinedButton(
-                  onPressed: addPhoneNumber, child: const Icon(Icons.add)),
+                onPressed: addPhoneNumber,
+                child: const Icon(Icons.add),
+                style: OutlinedButton.styleFrom(shape: const CircleBorder()),
+              ),
               OutlinedButton(
-                  onPressed: subPhoneNumber,
-                  child: const Text(
-                    '-',
-                    style: TextStyle(fontSize: 25),
-                  )),
+                onPressed: subPhoneNumber,
+                child: const Icon(Icons.remove),
+                style: OutlinedButton.styleFrom(shape: const CircleBorder()),
+              ),
             ],
           ),
           Flexible(

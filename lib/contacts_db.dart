@@ -40,7 +40,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
   final lNameEditCtrl = TextEditingController();
   final fNameEditCtrl = TextEditingController();
 
-  FutureBuilder<Contacts> buildEditWidget(int index) {
+  FutureBuilder<Contacts> buildEditWidget(int index, bool edit) {
     List<TextEditingController> pNumbersCtrl = [];
     return FutureBuilder(
       builder: (context, contact) {
@@ -51,144 +51,257 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
           return ConstrainedBox(
             constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height - 350),
-            child: Column(
+            child: Stack(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+              Visibility(
+                visible: !edit,
+                child: Column(
                   children: [
-                    OutlinedButton(
-                      onPressed: () {},
-                      child: const Icon(
-                        Icons.call,
-                        size: 10,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {},
+                            child: const Icon(
+                              Icons.call,
+                              size: 10,
+                            ),
+                            style: OutlinedButton.styleFrom(
+                                shape: const CircleBorder()),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {
+                              deleteContact(contact.data!.id.toString());
+                              fetchNumOfContacts().then((value) {
+                                setState(() {
+                                  futureContacts.removeAt(index);
+                                });
+                                futureNumOfContacts--;
+                                setState(() {
+                                  SecondScreen.of(context)!.editVisibilityOfWidget =
+                                      false;
+                                });
+                              });
+                            },
+                            child: const Icon(
+                              Icons.delete,
+                              size: 10,
+                            ),
+                            style: OutlinedButton.styleFrom(
+                                shape: const CircleBorder()),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {
+                              SecondScreen.of(context)!.editToBeEdit = buildEditWidget(index, true);
+                            },
+                            child: const Icon(
+                              Icons.edit,
+                              size: 10,
+                            ),
+                            style: OutlinedButton.styleFrom(
+                                shape: const CircleBorder()),
+                          ),
+                        ],
                       ),
-                      style:
-                          OutlinedButton.styleFrom(shape: const CircleBorder()),
                     ),
-                    OutlinedButton(
-                      onPressed: () {
-                        deleteContact(contact.data!.id.toString());
-                        fetchNumOfContacts().then((value) {
-                          setState(() {
-                            futureContacts.removeAt(index);
-                          });
-                          futureNumOfContacts--;
-                          setState(() {
-                            SecondScreen.of(context)!.editVisibilityOfWidget =
-                                false;
-                          });
-                        });
-                      },
-                      child: const Icon(
-                        Icons.delete,
-                        size: 10,
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 5.0),
+                                child: Text(contact.data!.firstName.toString(), style: const TextStyle(fontSize: 20),),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(contact.data!.lastName.toString(), style: const TextStyle(fontSize: 20),),)
+                          ],
+                        ),
                       ),
-                      style:
-                          OutlinedButton.styleFrom(shape: const CircleBorder()),
                     ),
-                    OutlinedButton(
-                      onPressed: () {},
-                      child: const Icon(
-                        Icons.edit,
-                        size: 10,
+                    Expanded(
+                      flex: 3,
+                      child: ListView.builder(
+                          itemCount: contact.data!.phoneNumbers.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 2, left: 12, right: 12),
+                              child: Text(contact.data!.phoneNumbers[index].toString()),
+                            );
+                          }),
+                    ),
+                    Flexible(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              child: const Text('Done'),
+                              onPressed: () {
+                                //Update
+                                setState(() {
+                                  SecondScreen.of(context)!.editVisibilityOfWidget =
+                                      false;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      style:
-                      OutlinedButton.styleFrom(shape: const CircleBorder()),
                     ),
                   ],
                 ),
-                Flexible(
-                  child: Row(
+              ),
+                Visibility(
+                  visible: edit,
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 5.0),
-                          child: TextFormField(
-                            controller: fNameEditCtrl,
-                            decoration: InputDecoration(
-                                labelText: contact.data!.firstName.toString()),
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {},
+                              child: const Icon(
+                                Icons.call,
+                                size: 10,
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                  shape: const CircleBorder()),
+                            ),
+                            OutlinedButton(
+                              onPressed: () {
+                                deleteContact(contact.data!.id.toString());
+                                fetchNumOfContacts().then((value) {
+                                  setState(() {
+                                    futureContacts.removeAt(index);
+                                  });
+                                  futureNumOfContacts--;
+                                  setState(() {
+                                    SecondScreen.of(context)!.editVisibilityOfWidget =
+                                    false;
+                                  });
+                                });
+                              },
+                              child: const Icon(
+                                Icons.delete,
+                                size: 10,
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                  shape: const CircleBorder()),
+                            ),
+                            OutlinedButton(
+                              onPressed: () {},
+                              child: const Icon(
+                                Icons.edit,
+                                size: 10,
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                  shape: const CircleBorder()),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 5.0),
+                                child: TextFormField(
+                                  controller: fNameEditCtrl,
+                                  decoration: InputDecoration(
+                                      hintText: contact.data!.firstName.toString()),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: lNameEditCtrl,
+                                decoration: InputDecoration(
+                                  hintText: contact.data!.lastName.toString(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Expanded(
-                        child: TextFormField(
-                          controller: lNameEditCtrl,
-                          decoration: InputDecoration(
-                              labelText: contact.data!.lastName.toString()),
-                        ),
+                        flex: 3,
+                        child: ListView.builder(
+                            itemCount: contact.data!.phoneNumbers.length + pnAdd,
+                            itemBuilder: (context, index) {
+                              return TextFormField(
+                                controller: pNumbersCtrl[index],
+                                decoration: InputDecoration(
+                                    labelText: 'Phone Number #${index + 1}'),
+                              );
+                            }),
                       ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: ListView.builder(
-                      itemCount: contact.data!.phoneNumbers.length + pnAdd,
-                      itemBuilder: (context, index) {
-                        return TextFormField(
-                          controller: pNumbersCtrl[index],
-                          decoration: InputDecoration(
-                              labelText: 'Phone Number #${index + 1}'),
-                        );
-                      }),
-                ),
-                Flexible(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          pnAdd++;
-                          SecondScreen.of(context)!.editToBeEdit =
-                              buildEditWidget(index);
-                        },
-                        child: const Icon(Icons.add),
-                        style: OutlinedButton.styleFrom(
-                            shape: const CircleBorder()),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {
-                          if (contact.data!.phoneNumbers.length + pnAdd > 0) {
-                            pnAdd--;
-                          }
-                          SecondScreen.of(context)!.editToBeEdit =
-                              buildEditWidget(index);
-                        },
-                        child: const Icon(Icons.remove),
-                        style: OutlinedButton.styleFrom(
-                            shape: const CircleBorder()),
-                      ),
-                      Expanded(
-                        child: ElevatedButton(
-                          child: const Text('Confirm'),
-                          onPressed: () {
-                            //Update
-                            List<String> pNumbers = [];
-                            for (int i = 0; i < pNumbersCtrl.length; i++) {
-                              pNumbers.add(pNumbersCtrl[i].text);
-                            }
-                            updateContact(lNameEditCtrl.text,
-                                fNameEditCtrl.text, pNumbers, contact.data!.id);
-                            setState(() {
-                              SecondScreen.of(context)!.editVisibilityOfWidget =
-                                  false;
-                            });
-                            futureContacts.clear();
-                            fetchNumOfContacts().then((value) {
-                              setState(() {
-                                futureNumOfContacts = int.parse(value);
-                                for (int i = 0; i < futureNumOfContacts; i++) {
-                                  futureContacts.insert(i, fetchContacts(i));
+                      Flexible(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {
+                                pnAdd++;
+                                SecondScreen.of(context)!.editToBeEdit =
+                                    buildEditWidget(index, true);
+                              },
+                              child: const Icon(Icons.add),
+                              style: OutlinedButton.styleFrom(
+                                  shape: const CircleBorder()),
+                            ),
+                            OutlinedButton(
+                              onPressed: () {
+                                if (contact.data!.phoneNumbers.length + pnAdd > 0) {
+                                  pnAdd--;
                                 }
-                              });
-                            });
-                          },
+                                SecondScreen.of(context)!.editToBeEdit =
+                                    buildEditWidget(index, true);
+                              },
+                              child: const Icon(Icons.remove),
+                              style: OutlinedButton.styleFrom(
+                                  shape: const CircleBorder()),
+                            ),
+                            Expanded(
+                              child: ElevatedButton(
+                                child: const Text('Confirm'),
+                                onPressed: () {
+                                  //Update
+                                  List<String> pNumbers = [];
+                                  for (int i = 0; i < pNumbersCtrl.length; i++) {
+                                    pNumbers.add(pNumbersCtrl[i].text);
+                                  }
+                                  updateContact(lNameEditCtrl.text,
+                                      fNameEditCtrl.text, pNumbers, contact.data!.id);
+                                  setState(() {
+                                    SecondScreen.of(context)!.editVisibilityOfWidget =
+                                    false;
+                                  });
+                                  futureContacts.clear();
+                                  fetchNumOfContacts().then((value) {
+                                    setState(() {
+                                      futureNumOfContacts = int.parse(value);
+                                      for (int i = 0; i < futureNumOfContacts; i++) {
+                                        futureContacts.insert(i, fetchContacts(i));
+                                      }
+                                    });
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                ),]
             ),
           );
         }
@@ -236,7 +349,7 @@ class _ContactsFromDatabaseState extends State<ContactsFromDatabase> {
                   onLongPress: () {
                     SecondScreen.of(context)!.editVisibilityOfWidget = true;
                     SecondScreen.of(context)!.editToBeEdit =
-                        buildEditWidget(index);
+                        buildEditWidget(index, false);
                   },
                 ),
               ),
