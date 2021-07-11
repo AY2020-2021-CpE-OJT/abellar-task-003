@@ -26,14 +26,18 @@ class PbApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
+      themeMode: ThemeMode.light,
       title: 'Phonebook App',
       home: FirstScreen(),
     );
   }
 }
 
+
 class FirstScreen extends StatelessWidget {
+  const FirstScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
