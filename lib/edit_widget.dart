@@ -59,31 +59,32 @@ class _EditContactWidgetState extends State<EditContactWidget> {
           padding:
           const EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 75),
           child: Center(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.account_circle_rounded,
-                      size: 50,
+            child: FittedBox(
+              fit: BoxFit.none,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 350),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                  child: LimitedBox(
+                    maxHeight: MediaQuery.of(context).size.height-250,
+                    child: ListView(
+                      padding: const EdgeInsets.all(20),
+                      children: <Widget>[
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.account_circle_rounded,
+                            size: 50,
+                          ),
+                        ),
+                        widget.toBeEdit,
+                      ],
                     ),
                   ),
-                  const Center(
-                    child: Text(
-                      'Edit Contacts',
-                      style: TextStyle(
-                        fontSize: 25,
-                      ),
-                    ),
-                  ),
-                  widget.toBeEdit,
-                ],
+                ),
               ),
             ),
           ),

@@ -125,6 +125,7 @@ class _InputContactFormState extends State<InputContactForm> {
                 child: Column(
                   children: [
                     TextFormField(
+                      textCapitalization: TextCapitalization.words,
                       decoration: const InputDecoration(
                           border: UnderlineInputBorder(),
                           labelText: 'First Name'),
